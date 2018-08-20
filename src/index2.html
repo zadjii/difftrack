@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>trackdiff test 2</title>
+</head>
+<body>
+<div id="the_thing">
+<script src="..\dep\diff.js"></script>
+<script src="..\dep\jquery-3.2.1.min.js"></script>
+<script src="..\src\trackdiff.js"></script>
+<script defer>
+
+function TextBlock(root, text, point) {
+    this._root = root;
+    this._text = text;
+    this._point = point;
+    let _initialize = function (self) {
+        let lines = self._text.split("\n");
+        for (var i = 0; i < lines.length; i++) {
+            let line = lines[i];
+            if (i == self._point.y){
+                console.log(self._point.x);
+                let a = line.substring(0, self._point.x);
+                let b = line.substring(self._point.x, self._point.x+1);
+                let c = line.substring(self._point.x+1);
+                console.log({a:a, b:b, c:c});
+                self._root.append($("<span>").text(a));
+                self._root.append($("<span>").css("background", "#8888ff").text(b));
+                self._root.append($("<span>").text(c));
+            }
+            else {
+                self._root.append($("<span>").text(line));
+            }
+            self._root.append($("<br>"));
+        }
+    };
+    _initialize(this);
+}
+
+
+function test000_by_word() {
+    console.log("starting test000_by_word");
+    let textA = "qwer\nasdf\nzxcv foo bar\n1234567890";
+    let textB = "qwer\nasdf\nfoo bar baz\n1234567890";
+    let point = {x:2,y:2};
+    var diff = JsDiff.diffWords(textA, textB);
+    let final = locate_point(point, diff);
+    let table = $("<table>");
+    $('body').append(table);
+    let row = $("<tr>");
+    table.append(row);
+    let colA = $("<td>");
+    let colB = $("<td>");
+    row.append(colA);
+    row.append(colB);
+    let blockA = new TextBlock(colA, textA, point);
+    let blockB = new TextBlock(colB, textB, point);
+    return true;
+}
+
+// function test000_by_char() {
+//     console.log("starting test000_by_char");
+//     let textA = "qwer\nasdf\nzxcv foo bar\n1234567890";
+//     let textB = "qwer\nasdf\nfoo bar baz\n1234567890";
+
+//     let points      = [{x:0,y:0},{x:3,y:0},{x:2,y:2},{x:3,y:3}];
+//     let expected    = [{x:0,y:0},{x:3,y:0},{x:0,y:2},{x:3,y:3}];
+
+//     var diff = JsDiff.diffChars(textA, textB);
+//     console.log(diff);
+//     var s_diffs = split_diffs(diff);
+//     console.log(s_diffs);
+
+//     let passed = 0;
+//     let total = 0;
+//     for (var i = 0; i < points.length; i++) {
+//         let p = points[i];
+//         let e = expected[i];
+//         let final = locate_point(p, diff);
+//         console.log("Translated " + p.x + ", " + p.y + " to " + final.x + ", " + final.y);
+//         if (!point_equals(final, e)){
+//             console.error("expected " + p.x + ", " + p.y + " to " + e.x + ", " + e.y);
+//         }
+//         else{
+//             passed++;
+//         }
+//         total++;
+//     };
+//     return total == passed;
+// }
+
+// function test001_by_word() {
+//     console.log("starting test000_by_word");
+//     let textA = "qwer\nasdf\nzxcv foo bar\n1234567890";
+//     let textB = "qwer\nasdf\nfoo bar baz\n1234567890";
+
+//     let points      = [{x:0,y:0},{x:3,y:0},{x:2,y:2},{x:3,y:3}];
+//     let expected    = [{x:0,y:0},{x:3,y:0},{x:0,y:2},{x:3,y:3}];
+
+//     var diff = JsDiff.diffWords(textA, textB);
+//     console.log(diff);
+//     var s_diffs = split_diffs(diff);
+//     console.log(s_diffs);
+
+//     let passed = 0;
+//     let total = 0;
+//     for (var i = 0; i < points.length; i++) {
+//         let p = points[i];
+//         let e = expected[i];
+//         let final = locate_point(p, diff);
+//         console.log("Translated " + p.x + ", " + p.y + " to " + final.x + ", " + final.y);
+//         if (!point_equals(final, e)){
+//             console.error("expected " + p.x + ", " + p.y + " to " + e.x + ", " + e.y);
+//         }
+//         else{
+//             passed++;
+//         }
+//         total++;
+//     };
+//     return total == passed;
+// }
+
+window.onload = function() {
+    test000_by_word();
+};
+</script>
+</body>
+</html>
