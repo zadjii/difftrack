@@ -7,8 +7,9 @@ function split_diffs(diffs) {
         let newline_index = diff.value.indexOf('\n');
         if (diff.value.length > 1 && newline_index != -1) {
             let elems = diff.value.split('\n');
-            elems.map(e=>{
-                if (e != ""){
+            // console.log(elems);
+            elems.map((e, index)=>{
+                if (e != "" || index == 0){
                     result.push({value: e, added:diff.added, removed:diff.removed});
                     result.push({value: "\n", added:diff.added, removed:diff.removed});
                 }
@@ -44,14 +45,14 @@ function locate_point(initial, diffs) {
         console.log({i:i, diff:diff, curr:{x:curr.x,y:curr.y}, target:{x:target.x,y:target.y}});
 
         if (content=='\n'){
-            console.log("content is newline");
+            // console.log("content is newline");
             if (curr.y < target.y && removed) {
                 target.y--;
             }
             else if (curr.y < target.y && added) {
                 target.y++;
                 // curr.y++
-                
+
             }
             // else if (curr.y < target.y && unchanged) {
             //     curr.y++;
@@ -64,13 +65,13 @@ function locate_point(initial, diffs) {
             }
             else if (curr.y == target.y && added) {
                 // we added a newline before where we thought the point was
-                // move the point left by the current line's length, then 
+                // move the point left by the current line's length, then
                 target.x -= curr.x;
                 target.y++;
             }
             else if (curr.y == target.y && unchanged){
                 // there was a newline on the line we thought the point should be
-                // I guess it's here now? 
+                // I guess it's here now?
                 final.x = curr.x;
                 final.y = curr.y;
                 found = true;
@@ -92,10 +93,10 @@ function locate_point(initial, diffs) {
                     final.y = curr.y;
                     found = true;
                     break;
-                    
+
                 }
                 else if (content_end >= target.x && (added || unchanged)) {
-                    // The spot we were looking for is in this segment, 
+                    // The spot we were looking for is in this segment,
                     final.x = target.x;
                     final.y = curr.y;
                     found = true;
@@ -109,9 +110,9 @@ function locate_point(initial, diffs) {
                 }
 
             }
-            
+
             curr.x += (added || unchanged)? c_len : 0;
-            
+
         }
 
 
@@ -120,7 +121,7 @@ function locate_point(initial, diffs) {
             console.error(curr);
             console.error(target);
         }
-        
+
     };
 
     if (!found) {
@@ -129,5 +130,5 @@ function locate_point(initial, diffs) {
     }
     // console.log("Translated " + initial.x + ", " + initial.y + " to " + final.x + ", " + final.y);
     return final;
-    
+
 }

@@ -3,31 +3,109 @@
 <head>
     <meta charset="utf-8">
     <title>trackdiff test 2</title>
+    <style type="text/css">
+        td {
+            padding-right: 2em;
+        }
+    </style>
 </head>
 <body>
-<div id="the_thing">
 <script src="..\dep\diff.js"></script>
 <script src="..\dep\jquery-3.2.1.min.js"></script>
 <script src="..\src\trackdiff.js"></script>
 <script defer>
 
-function TextBlock(root, text, point) {
+function Point(x, y){
+    this.x = x;
+    this.y = y;
+}
+
+function PointColor(point, color){
+    this.point = point;
+    this.color = color;
+}
+
+function TextBlock(root, text, point_colors) {
     this._root = root;
     this._text = text;
-    this._point = point;
+    this._point_colors = point_colors.filter(a=>a.point.x != -1 && a.point.y != -1).sort((a, b)=>{
+        if (a.point.y < b.point.y){ return -1;}
+        else if (a.point.y > b.point.y){ return 1;}
+        else {
+            if (a.point.x < b.point.x){ return -1;}
+            else if (a.point.x > b.point.x){ return 1;}
+            else return 0;
+        }
+    });
+
     let _initialize = function (self) {
         let lines = self._text.split("\n");
-        for (var i = 0; i < lines.length; i++) {
-            let line = lines[i];
-            if (i == self._point.y){
-                console.log(self._point.x);
-                let a = line.substring(0, self._point.x);
-                let b = line.substring(self._point.x, self._point.x+1);
-                let c = line.substring(self._point.x+1);
-                console.log({a:a, b:b, c:c});
-                self._root.append($("<span>").text(a));
-                self._root.append($("<span>").css("background", "#8888ff").text(b));
-                self._root.append($("<span>").text(c));
+        let pc_index = 0;
+        let pc = self._point_colors.length > pc_index? self._point_colors[pc_index] : null;
+        for (var row = 0; row < lines.length; row++) {
+            let line = lines[row];
+            if (pc != null && row == pc.point.y){
+                let xs = [];
+                let colors = [];
+
+                for (var j = pc_index; j < self._point_colors.length; j++){
+                    if (self._point_colors[j].point.y == row){
+                        xs.push(self._point_colors[j].point.x);
+                        colors.push(self._point_colors[j].color);
+                    }
+                    else if (self._point_colors[j].point.y > row) break;
+                }
+
+                pc_index += xs.length;
+                pc = self._point_colors.length > pc_index? self._point_colors[pc_index] : null;
+
+                if (xs.length > 0){
+                    let next_index = 0;
+                    let next_segment = "";
+                    for (var char_index = 0; char_index < line.length; char_index++) {
+                        let c = line[char_index];
+                        if (char_index == xs[next_index]){
+                            self._root.append($("<span>").text(next_segment));
+                            self._root.append($("<span>").css("background", colors[next_index]).text(c));
+                            next_segment = "";
+                            next_index++;
+                            if (next_index >= xs.length){
+                                self._root.append($("<span>").text(line.substring(char_index+1)));
+                            }
+                        }
+                        else {
+                            next_segment += c;
+                        }
+                    }
+                    // let current_length = 0;
+                    // let segments = [];
+                    // let start_index = 0;
+                    // // if (xs[0] == 0){
+                    // //     segments.push("");
+                    // //     start_index++;
+                    // // }
+                    // for (var seperator = start_index; seperator < xs.length; seperator++) {
+                    //     let x = xs[seperator];
+                    //     let segment = line.substring(current_length, x);
+                    //     segments.push(segment);
+                    //     current_length += segment.length;
+                    //     if (current_length >= line.length) break;
+                    // }
+                    // current_length = 0;
+                    // fo
+
+                }
+                else {
+                    self._root.append($("<span>").text(line));
+                }
+                // let x = pc.point.x;
+                // let a = line.substring(0, x);
+                // let b = line.substring(x, x+1);
+                // let c = line.substring(x+1);
+                // // console.log({a:a, b:b, c:c});
+                // self._root.append($("<span>").text(a));
+                // self._root.append($("<span>").css("background", pc.color).text(b));
+                // self._root.append($("<span>").text(c));
             }
             else {
                 self._root.append($("<span>").text(line));
@@ -38,27 +116,149 @@ function TextBlock(root, text, point) {
     _initialize(this);
 }
 
-
+// "0x240A"
 function test000_by_word() {
     console.log("starting test000_by_word");
+    $("body").append($("<hr>"));
     let textA = "qwer\nasdf\nzxcv foo bar\n1234567890";
     let textB = "qwer\nasdf\nfoo bar baz\n1234567890";
-    let point = {x:2,y:2};
-    var diff = JsDiff.diffWords(textA, textB);
-    let final = locate_point(point, diff);
-    let table = $("<table>");
-    $('body').append(table);
-    let row = $("<tr>");
-    table.append(row);
-    let colA = $("<td>");
-    let colB = $("<td>");
-    row.append(colA);
-    row.append(colB);
-    let blockA = new TextBlock(colA, textA, point);
-    let blockB = new TextBlock(colB, textB, point);
+    let points = [{x:0,y:0},{x:3,y:0},{x:2,y:2},{x:3,y:3},{x:9,y:2},{x:6,y:2}];
+    let colors = ["#ff8888","#88ff88","#ffff88","#8888ff","#ff88ff","#88ffff"];
+
+    new DiffBlock($("body"), textA, textB);
+    new DiffPointsBlock($("body"), textA, textB, points.map((p, index)=>{return new PointColor(p, colors[index]);}));
+
     return true;
 }
 
+function DiffPointsBlock(root, textA, textB, point_colors) {
+    this._root = root;
+    this._textA = textA;
+    this._textB = textB;
+    this._initial_point_colors = point_colors;
+    let _initialize = function (self) {
+        // var diff_words = JsDiff.diffWords(textA, textB);
+        var diff_words = JsDiff.diffWordsWithSpace(textA, textB);
+        // console.log(diff_words);
+        // console.log(split_diffs(diff_words));
+        var diff_chars = JsDiff.diffChars(textA, textB);
+        // console.log(diff_chars);
+        // console.log(split_diffs(diff_chars));
+        let final_point_colors = self._initial_point_colors.map(pc=>{return new PointColor(locate_point(pc.point, diff_words),  pc.color)});
+        let final_point_colors_by_chars = self._initial_point_colors.map(pc=>{return new PointColor(locate_point(pc.point, diff_chars),  pc.color)});
+        let table = $("<table>");
+        self._root.append(table);
+        let header = $("<tr>");
+        table.append(header);
+        header
+            .append($("<th>").text("points"))
+            .append($("<th>").text("initial text"))
+            .append($("<th>").text("diff by words"))
+            .append($("<th>").text("diff by chars"))
+            ;
+        let row = $("<tr>");
+        table.append(row);
+        let colA = $("<td>");
+        let colB = $("<td>");
+        let colC = $("<td>");
+        let colD = $("<td>");
+        row.append(colA);
+        row.append(colB);
+        row.append(colC);
+        row.append(colD);
+        point_colors.map(pc=>{colA.append($("<div>").css("background", pc.color).text(JSON.stringify(pc.point)));});
+        // let initial_pcs = points.map((p, index)=>{return new PointColor(p, colors[index]);});
+        // let final_pcs = finals.map((p, index)=>{return new PointColor(p, colors[index]);});
+        let blockA = new TextBlock(colB, textA, self._initial_point_colors);
+        let blockB = new TextBlock(colC, textB, final_point_colors);
+        let blockC = new TextBlock(colD, textB, final_point_colors_by_chars);
+
+    };
+    _initialize(this);
+}
+
+function DiffBlock(root, textA, textB) {
+    this._root = root;
+    this._textA = textA;
+    this._textB = textB;
+    let _initialize = function (self) {
+        var diff_words = JsDiff.diffWordsWithSpace(textA, textB);
+        var diff_chars = JsDiff.diffChars(textA, textB);
+        // var diffs = JsDiff.diffWords(textA, textB);
+        let table = $("<table>");
+        self._root.append(table);
+        let header = $("<tr>");
+        table.append(header);
+        header
+            .append($("<th>").text("textA"))
+            .append($("<th>").text("textB"))
+            .append($("<th>").text("diff by words"))
+            .append($("<th>").text("diff by chars"))
+            ;
+        let row = $("<tr>");
+        table.append(row);
+        let colA = $("<td>");
+        let colB = $("<td>");
+        let colC = $("<td>");
+        let colD = $("<td>");
+        row.append(colA);
+        row.append(colB);
+        row.append(colC);
+        row.append(colD);
+        // let initial_pcs = points.map((p, index)=>{return new PointColor(p, colors[index]);});
+        // let final_pcs = finals.map((p, index)=>{return new PointColor(p, colors[index]);});
+        let blockA = new TextBlock(colA, textA, []);
+        let blockB = new TextBlock(colB, textB, []);
+        for (var i = 0; i < diff_words.length; i++) {
+            let diff = diff_words[i];
+            // console.log(diff);
+            // console.log(diff.value);
+            // console.log(diff.value.replace("\n", "\u240a"));
+            // console.log(diff.value.replace("\n", "^"));
+            // if(diff.value[diff.value.length-1] == '\n') console.log("ended in newline");
+            colC.append(
+                $("<span>")
+                    .css("background", diff.added? ("#88ff88") : (diff.removed? ("#ff8888") : ("")))
+                    .text(diff.value.replace("\n", "\u240a"))
+                    // .text(diff.value.replace("\n", "^J"))
+            );
+
+            // let lines = diff.value.split('\n');
+            // console.log(lines);
+            // lines.map((line, index)=>{
+            //     colC.append(
+            //         $("<span>")
+            //             .css("background", diff.added? ("#88ff88") : (diff.removed? ("#ff8888") : ("")))
+            //             .text(index < lines.length-1? (line + "\u240a") : (line))
+            //     );
+            //     // colC.append($("<br>"));
+            // });
+        }
+
+        for (var i = 0; i < diff_chars.length; i++) {
+            let diff = diff_chars[i];
+            colD.append(
+                $("<span>")
+                    .css("background", diff.added? ("#88ff88") : (diff.removed? ("#ff8888") : ("")))
+                    .text(diff.value.replace("\n", "\u240a"))
+                    // .text(diff.value.replace("\n", "^J"))
+            );
+
+            // let lines = diff.value.split('\n');
+            // console.log(lines);
+            // lines.map((line, index)=>{
+            //     colC.append(
+            //         $("<span>")
+            //             .css("background", diff.added? ("#88ff88") : (diff.removed? ("#ff8888") : ("")))
+            //             .text(index < lines.length-1? (line + "\u240a") : (line))
+            //     );
+            //     // colC.append($("<br>"));
+            // });
+        }
+
+    };
+    _initialize(this);
+}
 // function test000_by_char() {
 //     console.log("starting test000_by_char");
 //     let textA = "qwer\nasdf\nzxcv foo bar\n1234567890";
@@ -121,8 +321,49 @@ function test000_by_word() {
 //     return total == passed;
 // }
 
+
+function test001_by_word() {
+    console.log("starting test001_by_word");
+    $("body").append($("<hr>"));
+    let textA = `TERMS AND CONDITIONS
+A. TERMS OF SALE
+B. ITUNES STORE TERMS AND CONDITIONS
+C. MAC APP STORE, APP STORE, APP STORE FOR APPLE TV AND IBOOKS STORE TERMS AND CONDITIONS
+D. APPLE MUSIC TERMS AND CONDITIONS
+THE LEGAL AGREEMENTS SET OUT BELOW GOVERN YOUR USE OF THE ITUNES STORE, MAC APP STORE, APP STORE, APP STORE FOR APPLE TV, IBOOKS STORE AND APPLE MUSIC SERVICES ("SERVICES").`;
+    let textB = `TERMS OR CONDITIONS
+A. TERMS OF SALE
+B. ITUNES STORE TERMS AND CONDITIONS
+C. MAC APP STORE, APP STORE, APP STORE FOR APPLE TV TERMS AND CONDITIONS, AND SOMETHING ELSE
+D. APPLE MUSIC TERMS AND CONDITIONS
+THE LEGAL CONTRACTS SET OUT BELOW GOVERN YOUR USE OF THE ITUNES STORE, MAC APP STORE, APP STORE, APP STORE FOR APPLE TV, IBOOKS STORE AND APPLE MUSIC SERVICES ("SERVICES").`;
+    let points = [{x:25,y:4},{x:10,y:0},{x:4,y:4},{x:3,y:3},{x:9,y:2},{x:6,y:2}];
+    let colors = ["#ff8888","#88ff88","#ffff88","#8888ff","#ff88ff","#88ffff"];
+
+    new DiffBlock($("body"), textA, textB);
+    new DiffPointsBlock($("body"), textA, textB, points.map((p, index)=>{return new PointColor(p, colors[index]);}));
+
+    return true;
+}
+
+function test002_by_word() {
+    console.log("test002_by_word test000_by_word");
+    $("body").append($("<hr>"));
+    let textA = "abcd\nefgh\nijkl\nmnop\nqrst";
+    let textB = "ubcd\nevgh\nijwl\nmnox\nqrst";
+    let points = [{x:0,y:0},{x:3,y:0},{x:2,y:2},{x:3,y:3},{x:9,y:2},{x:6,y:2}];
+    let colors = ["#ff8888","#88ff88","#ffff88","#8888ff","#ff88ff","#88ffff"];
+
+    new DiffBlock($("body"), textA, textB);
+    new DiffPointsBlock($("body"), textA, textB, points.map((p, index)=>{return new PointColor(p, colors[index]);}));
+
+    return true;
+}
+
 window.onload = function() {
     test000_by_word();
+    test001_by_word();
+    test002_by_word();
 };
 </script>
 </body>
