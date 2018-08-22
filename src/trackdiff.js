@@ -9,10 +9,10 @@ function split_diffs(diffs) {
             let elems = diff.value.split('\n');
             console.log(elems);
             elems.map((e, index)=>{
-                if (e != "" || index == 0){
+                // if (e != "" || index == 0){
                     result.push({value: e, added:diff.added, removed:diff.removed});
                     if(index != elems.length-1) result.push({value: "\n", added:diff.added, removed:diff.removed});
-                }
+                // }
             });
             // let a = {value: diff.value.substr(0, newline_index), added:diff.added, removed:diff.removed};
             // let b = {value: diff.value.substr(newline_index, diff.value.length), added:diff.added, removed:diff.removed};
@@ -95,15 +95,15 @@ function locate_point(initial, diffs) {
                     break;
 
                 }
-                else if (content_end >= target.x && added) {
-                    target.x += c_len;
-                }
                 else if (content_end >= target.x && (/*added || */unchanged)) {
                     // The spot we were looking for is in this segment,
                     final.x = target.x;
                     final.y = curr.y;
                     found = true;
                     break;
+                }
+                else if (/*content_end >= target.x &&*/ added) {
+                    target.x += c_len;
                 }
 
                 // If the current segment is inserted/deleted before the point, then adjust the point accordingly
