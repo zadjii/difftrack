@@ -15,6 +15,21 @@
 <script src="..\src\trackdiff.js"></script>
 <script defer>
 
+let colorPalette = [
+    "#8888ff",
+    "#f808aa",
+    "#ffff88",
+    "#4af8a8",
+    "#888888",
+    "#ff8888",
+    "#88ff88",
+    "#f8c8a8",
+    "#ff88ff",
+    "#88ffff",
+    "#aa48fa",
+    "#f84f4f",
+];
+
 function Point(x, y){
     this.x = x;
     this.y = y;
@@ -123,8 +138,8 @@ function test000_by_word() {
     let textA = "qwer\nasdf\nzxcv foo bar\n1234567890";
     let textB = "qwer\nasdf\nfoo bar baz\n1234567890";
     let points = [{x:0,y:0},{x:3,y:0},{x:2,y:2},{x:3,y:3},{x:9,y:2},{x:6,y:2}];
-    let colors = ["#ff8888","#88ff88","#ffff88","#8888ff","#ff88ff","#88ffff"];
-
+    // let colors = ["#ff8888","#88ff88","#ffff88","#8888ff","#ff88ff","#88ffff"];
+    let colors = colorPalette;
     new DiffBlock($("body"), textA, textB);
     new DiffPointsBlock($("body"), textA, textB, points.map((p, index)=>{return new PointColor(p, colors[index]);}));
 
@@ -139,7 +154,7 @@ function DiffPointsBlock(root, textA, textB, point_colors) {
     let _initialize = function (self) {
         // var diff_words = JsDiff.diffWords(textA, textB);
         var diff_words = JsDiff.diffWordsWithSpace(textA, textB);
-        // console.log(diff_words);
+        console.log(diff_words);
         // console.log(split_diffs(diff_words));
         var diff_chars = JsDiff.diffChars(textA, textB);
         // console.log(diff_chars);
@@ -216,44 +231,44 @@ function DiffBlock(root, textA, textB) {
             // console.log(diff.value.replace("\n", "\u240a"));
             // console.log(diff.value.replace("\n", "^"));
             // if(diff.value[diff.value.length-1] == '\n') console.log("ended in newline");
-            colC.append(
-                $("<span>")
-                    .css("background", diff.added? ("#88ff88") : (diff.removed? ("#ff8888") : ("")))
-                    .text(diff.value.replace("\n", "\u240a"))
-                    // .text(diff.value.replace("\n", "^J"))
-            );
+            // colC.append(
+            //     $("<span>")
+            //         .css("background", diff.added? ("#88ff88") : (diff.removed? ("#ff8888") : ("")))
+            //         .text(diff.value.replace("\n", "\u240a"))
+            //         // .text(diff.value.replace("\n", "^J"))
+            // );
 
-            // let lines = diff.value.split('\n');
+            let lines = diff.value.split('\n');
             // console.log(lines);
-            // lines.map((line, index)=>{
-            //     colC.append(
-            //         $("<span>")
-            //             .css("background", diff.added? ("#88ff88") : (diff.removed? ("#ff8888") : ("")))
-            //             .text(index < lines.length-1? (line + "\u240a") : (line))
-            //     );
-            //     // colC.append($("<br>"));
-            // });
+            lines.map((line, index)=>{
+                colC.append(
+                    $("<span>")
+                        .css("background", diff.added? ("#88ff88") : (diff.removed? ("#ff8888") : ("")))
+                        .text(index < lines.length-1? (line + "\u240a") : (line))
+                );
+                if (index < lines.length-1) colC.append($("<br>"));
+            });
         }
 
         for (var i = 0; i < diff_chars.length; i++) {
             let diff = diff_chars[i];
-            colD.append(
-                $("<span>")
-                    .css("background", diff.added? ("#88ff88") : (diff.removed? ("#ff8888") : ("")))
-                    .text(diff.value.replace("\n", "\u240a"))
-                    // .text(diff.value.replace("\n", "^J"))
-            );
+            // colD.append(
+            //     $("<span>")
+            //         .css("background", diff.added? ("#88ff88") : (diff.removed? ("#ff8888") : ("")))
+            //         .text(diff.value.replace("\n", "\u240a"))
+            //         // .text(diff.value.replace("\n", "^J"))
+            // );
 
-            // let lines = diff.value.split('\n');
+            let lines = diff.value.split('\n');
             // console.log(lines);
-            // lines.map((line, index)=>{
-            //     colC.append(
-            //         $("<span>")
-            //             .css("background", diff.added? ("#88ff88") : (diff.removed? ("#ff8888") : ("")))
-            //             .text(index < lines.length-1? (line + "\u240a") : (line))
-            //     );
-            //     // colC.append($("<br>"));
-            // });
+            lines.map((line, index)=>{
+                colD.append(
+                    $("<span>")
+                        .css("background", diff.added? ("#88ff88") : (diff.removed? ("#ff8888") : ("")))
+                        .text(index < lines.length-1? (line + "\u240a") : (line))
+                );
+                if (index < lines.length-1) colD.append($("<br>"));
+            });
         }
 
     };
@@ -337,8 +352,9 @@ B. ITUNES STORE TERMS AND CONDITIONS
 C. MAC APP STORE, APP STORE, APP STORE FOR APPLE TV TERMS AND CONDITIONS, AND SOMETHING ELSE
 D. APPLE MUSIC TERMS AND CONDITIONS
 THE LEGAL CONTRACTS SET OUT BELOW GOVERN YOUR USE OF THE ITUNES STORE, MAC APP STORE, APP STORE, APP STORE FOR APPLE TV, IBOOKS STORE AND APPLE MUSIC SERVICES ("SERVICES").`;
-    let points = [{x:25,y:4},{x:10,y:0},{x:4,y:4},{x:3,y:3},{x:9,y:2},{x:6,y:2}];
-    let colors = ["#ff8888","#88ff88","#ffff88","#8888ff","#ff88ff","#88ffff"];
+    let points = [{x:10,y:5},{x:10,y:0},{x:4,y:4},{x:69,y:3},{x:79,y:3},{x:25,y:5},{x:50,y:3},{x:53,y:3}];
+    // let colors = ["#ff8888","#88ff88","#ffff88","#8888ff","#ff88ff","#88ffff"];
+    let colors = colorPalette;
 
     new DiffBlock($("body"), textA, textB);
     new DiffPointsBlock($("body"), textA, textB, points.map((p, index)=>{return new PointColor(p, colors[index]);}));
@@ -352,7 +368,32 @@ function test002_by_word() {
     let textA = "abcd\nefgh\nijkl\nmnop\nqrst";
     let textB = "ubcd\nevgh\nijwl\nmnox\nqrst";
     let points = [{x:0,y:0},{x:3,y:0},{x:2,y:2},{x:3,y:3},{x:9,y:2},{x:6,y:2}];
-    let colors = ["#ff8888","#88ff88","#ffff88","#8888ff","#ff88ff","#88ffff"];
+    // let colors = ["#ff8888","#88ff88","#ffff88","#8888ff","#ff88ff","#88ffff"];
+    let colors = colorPalette;
+
+    new DiffBlock($("body"), textA, textB);
+    new DiffPointsBlock($("body"), textA, textB, points.map((p, index)=>{return new PointColor(p, colors[index]);}));
+
+    return true;
+}
+
+function test003_by_word() {
+    console.log("starting test001_by_word");
+    $("body").append($("<hr>"));
+    let textA = `TERMS AND CONDITIONS
+A. TERMS OF SALE
+B. ITUNES STORE TERMS AND CONDITIONS
+C. MAC APP STORE, APP STORE, APP STORE FOR APPLE TV AND IBOOKS STORE TERMS AND CONDITIONS
+D. APPLE MUSIC TERMS AND CONDITIONS
+THE LEGAL AGREEMENTS SET OUT BELOW GOVERN YOUR USE OF THE ITUNES STORE, MAC APP STORE, APP STORE, APP STORE FOR APPLE TV, IBOOKS STORE AND APPLE MUSIC SERVICES ("SERVICES").`;
+    let textB = `TERMS OR CONDITIONS
+A. TERMS OF SALE
+B. ITUNES STORE TERMS AND CONDITIONS
+C. MAC APP STORE, APP STORE, APP STORE FOR APPLE TV TERMS AND CONDITIONS, AND SOMETHING ELSE
+D. APPLE MUSIC TERMS AND CONDITIONS
+THE LEGAL CONTRACTS SET OUT BELOW GOVERN YOUR USE OF THE ITUNES STORE, MAC APP STORE, APP STORE, APP STORE FOR APPLE TV, IBOOKS STORE AND APPLE MUSIC SERVICES ("SERVICES").`;
+    let points = [{x:4,y:4}];
+    let colors = ["#ffff88"];
 
     new DiffBlock($("body"), textA, textB);
     new DiffPointsBlock($("body"), textA, textB, points.map((p, index)=>{return new PointColor(p, colors[index]);}));
@@ -364,6 +405,7 @@ window.onload = function() {
     test000_by_word();
     test001_by_word();
     test002_by_word();
+    // test003_by_word();
 };
 </script>
 </body>

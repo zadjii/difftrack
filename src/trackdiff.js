@@ -7,11 +7,11 @@ function split_diffs(diffs) {
         let newline_index = diff.value.indexOf('\n');
         if (diff.value.length > 1 && newline_index != -1) {
             let elems = diff.value.split('\n');
-            // console.log(elems);
+            console.log(elems);
             elems.map((e, index)=>{
                 if (e != "" || index == 0){
                     result.push({value: e, added:diff.added, removed:diff.removed});
-                    result.push({value: "\n", added:diff.added, removed:diff.removed});
+                    if(index != elems.length-1) result.push({value: "\n", added:diff.added, removed:diff.removed});
                 }
             });
             // let a = {value: diff.value.substr(0, newline_index), added:diff.added, removed:diff.removed};
@@ -95,7 +95,10 @@ function locate_point(initial, diffs) {
                     break;
 
                 }
-                else if (content_end >= target.x && (added || unchanged)) {
+                else if (content_end >= target.x && added) {
+                    target.x += c_len;
+                }
+                else if (content_end >= target.x && (/*added || */unchanged)) {
                     // The spot we were looking for is in this segment,
                     final.x = target.x;
                     final.y = curr.y;
@@ -104,14 +107,20 @@ function locate_point(initial, diffs) {
                 }
 
                 // If the current segment is inserted/deleted before the point, then adjust the point accordingly
-                if (content_end < target.x && (added || removed)){
-                    target.x += (added? 1 : -1) * c_len
+                if (content_end < target.x && (removed)){
+                    target.x += (-1) * c_len;
                 // so if we remove a word len 5 then add a word len 3, we'll end up moving the target up 2 characters
                 }
 
-            }
+                // // If the current segment is inserted/deleted before the point, then adjust the point accordingly
+                // if (content_end < target.x && (added || removed)){
+                //     target.x += (added? 1 : -1) * c_len
+                // // so if we remove a word len 5 then add a word len 3, we'll end up moving the target up 2 characters
+                // }
 
+            }
             curr.x += (added || unchanged)? c_len : 0;
+
 
         }
 
