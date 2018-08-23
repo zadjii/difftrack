@@ -7,7 +7,7 @@ function split_diffs(diffs) {
         let newline_index = diff.value.indexOf('\n');
         if (diff.value.length > 1 && newline_index != -1) {
             let elems = diff.value.split('\n');
-            console.log(elems);
+            // console.log(elems);
             elems.map((e, index)=>{
                 // if (e != "" || index == 0){
                     result.push({value: e, added:diff.added, removed:diff.removed});

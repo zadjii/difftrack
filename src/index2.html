@@ -100,35 +100,11 @@ function TextBlock(root, text, point_colors) {
                             next_segment += c;
                         }
                     }
-                    // let current_length = 0;
-                    // let segments = [];
-                    // let start_index = 0;
-                    // // if (xs[0] == 0){
-                    // //     segments.push("");
-                    // //     start_index++;
-                    // // }
-                    // for (var seperator = start_index; seperator < xs.length; seperator++) {
-                    //     let x = xs[seperator];
-                    //     let segment = line.substring(current_length, x);
-                    //     segments.push(segment);
-                    //     current_length += segment.length;
-                    //     if (current_length >= line.length) break;
-                    // }
-                    // current_length = 0;
-                    // fo
 
                 }
                 else {
                     self._root.append($("<span>").text(line));
                 }
-                // let x = pc.point.x;
-                // let a = line.substring(0, x);
-                // let b = line.substring(x, x+1);
-                // let c = line.substring(x+1);
-                // // console.log({a:a, b:b, c:c});
-                // self._root.append($("<span>").text(a));
-                // self._root.append($("<span>").css("background", pc.color).text(b));
-                // self._root.append($("<span>").text(c));
             }
             else {
                 self._root.append($("<span>").text(line));
@@ -147,7 +123,6 @@ function test000_by_word() {
     let textA = "qwer\nasdf\nzxcv foo bar\n1234567890";
     let textB = "qwer\nasdf\nfoo bar baz\n1234567890";
     let points = [{x:0,y:0},{x:3,y:0},{x:2,y:2},{x:3,y:3},{x:9,y:2},{x:6,y:2}];
-    // let colors = ["#ff8888","#88ff88","#ffff88","#8888ff","#ff88ff","#88ffff"];
     let colors = colorPalette;
     new DiffBlock($("body"), textA, textB);
     new DiffPointsBlock($("body"), textA, textB, points.map((p, index)=>{return new PointColor(p, colors[index]);}));
@@ -163,15 +138,18 @@ function DiffPointsBlock(root, textA, textB, point_colors) {
     let _initialize = function (self) {
         // var diff_words = JsDiff.diffWords(textA, textB);
         var diff_words = JsDiff.diffWordsWithSpace(textA, textB);
-        console.log(diff_words);
-        // console.log(split_diffs(diff_words));
         var diff_chars = JsDiff.diffChars(textA, textB);
-        // console.log(diff_chars);
-        // console.log(split_diffs(diff_chars));
+        // console.log(JsDiff.structuredPatch("", "", textA, textB, "", ""));
+        // var diff_lines = JsDiff.diffLines(textA, textB, {newlineIsToken:true});
+        // var diff_lines = JsDiff.diffLines(textA, textB, false, true);
+        console.log(diff_words);
+
         let final_point_colors = self._initial_point_colors.map(pc=>{return new PointColor(locate_point(pc.point, diff_words),  pc.color)});
         let final_point_colors_by_chars = self._initial_point_colors.map(pc=>{return new PointColor(locate_point(pc.point, diff_chars),  pc.color)});
-        console.log(final_point_colors);
-        console.log(final_point_colors_by_chars);
+        // let final_point_colors_by_lines = self._initial_point_colors.map(pc=>{return new PointColor(locate_point(pc.point, diff_lines),  pc.color)});
+
+        // console.log(final_point_colors);
+        // console.log(final_point_colors_by_chars);
 
         let table = $("<table>");
         self._root.append(table);
@@ -189,10 +167,12 @@ function DiffPointsBlock(root, textA, textB, point_colors) {
         let colB = $("<td>");
         let colC = $("<td>");
         let colD = $("<td>");
+        // let colE = $("<td>");
         row.append(colA);
         row.append(colB);
         row.append(colC);
         row.append(colD);
+        // row.append(colE);
         point_colors.map((pc,i)=>{
             colA.append(
                 $("<div>")
@@ -205,6 +185,7 @@ function DiffPointsBlock(root, textA, textB, point_colors) {
         let blockA = new TextBlock(colB, textA, self._initial_point_colors);
         let blockB = new TextBlock(colC, textB, final_point_colors);
         let blockC = new TextBlock(colD, textB, final_point_colors_by_chars);
+        // let blockD = new TextBlock(colE, textB, final_point_colors_by_lines);
 
     };
     _initialize(this);
@@ -238,26 +219,15 @@ function DiffBlock(root, textA, textB) {
         row.append(colB);
         row.append(colC);
         row.append(colD);
-        // let initial_pcs = points.map((p, index)=>{return new PointColor(p, colors[index]);});
-        // let final_pcs = finals.map((p, index)=>{return new PointColor(p, colors[index]);});
+
         let blockA = new TextBlock(colA, textA, []);
         let blockB = new TextBlock(colB, textB, []);
+
         for (var i = 0; i < diff_words.length; i++) {
             let diff = diff_words[i];
-            // console.log(diff);
-            // console.log(diff.value);
-            // console.log(diff.value.replace("\n", "\u240a"));
-            // console.log(diff.value.replace("\n", "^"));
-            // if(diff.value[diff.value.length-1] == '\n') console.log("ended in newline");
-            // colC.append(
-            //     $("<span>")
-            //         .css("background", diff.added? ("#88ff88") : (diff.removed? ("#ff8888") : ("")))
-            //         .text(diff.value.replace("\n", "\u240a"))
-            //         // .text(diff.value.replace("\n", "^J"))
-            // );
 
             let lines = diff.value.split('\n');
-            // console.log(lines);
+
             lines.map((line, index)=>{
                 colC.append(
                     $("<span>")
@@ -270,15 +240,7 @@ function DiffBlock(root, textA, textB) {
 
         for (var i = 0; i < diff_chars.length; i++) {
             let diff = diff_chars[i];
-            // colD.append(
-            //     $("<span>")
-            //         .css("background", diff.added? ("#88ff88") : (diff.removed? ("#ff8888") : ("")))
-            //         .text(diff.value.replace("\n", "\u240a"))
-            //         // .text(diff.value.replace("\n", "^J"))
-            // );
-
             let lines = diff.value.split('\n');
-            // console.log(lines);
             lines.map((line, index)=>{
                 colD.append(
                     $("<span>")
@@ -292,67 +254,6 @@ function DiffBlock(root, textA, textB) {
     };
     _initialize(this);
 }
-// function test000_by_char() {
-//     console.log("starting test000_by_char");
-//     let textA = "qwer\nasdf\nzxcv foo bar\n1234567890";
-//     let textB = "qwer\nasdf\nfoo bar baz\n1234567890";
-
-//     let points      = [{x:0,y:0},{x:3,y:0},{x:2,y:2},{x:3,y:3}];
-//     let expected    = [{x:0,y:0},{x:3,y:0},{x:0,y:2},{x:3,y:3}];
-
-//     var diff = JsDiff.diffChars(textA, textB);
-//     console.log(diff);
-//     var s_diffs = split_diffs(diff);
-//     console.log(s_diffs);
-
-//     let passed = 0;
-//     let total = 0;
-//     for (var i = 0; i < points.length; i++) {
-//         let p = points[i];
-//         let e = expected[i];
-//         let final = locate_point(p, diff);
-//         console.log("Translated " + p.x + ", " + p.y + " to " + final.x + ", " + final.y);
-//         if (!point_equals(final, e)){
-//             console.error("expected " + p.x + ", " + p.y + " to " + e.x + ", " + e.y);
-//         }
-//         else{
-//             passed++;
-//         }
-//         total++;
-//     };
-//     return total == passed;
-// }
-
-// function test001_by_word() {
-//     console.log("starting test000_by_word");
-//     let textA = "qwer\nasdf\nzxcv foo bar\n1234567890";
-//     let textB = "qwer\nasdf\nfoo bar baz\n1234567890";
-
-//     let points      = [{x:0,y:0},{x:3,y:0},{x:2,y:2},{x:3,y:3}];
-//     let expected    = [{x:0,y:0},{x:3,y:0},{x:0,y:2},{x:3,y:3}];
-
-//     var diff = JsDiff.diffWords(textA, textB);
-//     console.log(diff);
-//     var s_diffs = split_diffs(diff);
-//     console.log(s_diffs);
-
-//     let passed = 0;
-//     let total = 0;
-//     for (var i = 0; i < points.length; i++) {
-//         let p = points[i];
-//         let e = expected[i];
-//         let final = locate_point(p, diff);
-//         console.log("Translated " + p.x + ", " + p.y + " to " + final.x + ", " + final.y);
-//         if (!point_equals(final, e)){
-//             console.error("expected " + p.x + ", " + p.y + " to " + e.x + ", " + e.y);
-//         }
-//         else{
-//             passed++;
-//         }
-//         total++;
-//     };
-//     return total == passed;
-// }
 
 
 function test001_by_word() {
@@ -371,7 +272,6 @@ C. MAC APP STORE, APP STORE, APP STORE FOR APPLE TV TERMS AND CONDITIONS, AND SO
 D. APPLE MUSIC TERMS AND CONDITIONS
 THE LEGAL CONTRACTS SET OUT BELOW GOVERN YOUR USE OF THE ITUNES STORE, MAC APP STORE, APP STORE, APP STORE FOR APPLE TV, IBOOKS STORE AND APPLE MUSIC SERVICES ("SERVICES").`;
     let points = [{x:10,y:5},{x:10,y:0},{x:4,y:4},{x:69,y:3},{x:79,y:3},{x:25,y:5},{x:50,y:3},{x:53,y:3}];
-    // let colors = ["#ff8888","#88ff88","#ffff88","#8888ff","#ff88ff","#88ffff"];
     let colors = colorPalette;
 
     new DiffBlock($("body"), textA, textB);
@@ -386,7 +286,6 @@ function test002_by_word() {
     let textA = "abcd\nefgh\nijkl\nmnop\nqrst";
     let textB = "ubcd\nevgh\nijwl\nmnox\nqrst";
     let points = [{x:0,y:0},{x:3,y:0},{x:2,y:2},{x:3,y:3},{x:9,y:2},{x:6,y:2}];
-    // let colors = ["#ff8888","#88ff88","#ffff88","#8888ff","#ff88ff","#88ffff"];
     let colors = colorPalette;
 
     new DiffBlock($("body"), textA, textB);
@@ -395,8 +294,8 @@ function test002_by_word() {
     return true;
 }
 
-function test003_by_word() {
-    console.log("starting test001_by_word");
+function test003() {
+    console.log("starting test003");
     $("body").append($("<hr>"));
     let textA = `
 // This is a very, VERY simple c program
@@ -417,6 +316,11 @@ int main(int argc, char* argv){
     }
     return 0;
 }`;
+
+    // So in this sample, when we diff by words, we get "-\n\nvoid", +"\nint".
+    // This unfortunately tricks the algorithm here, because one of those \n should just remain unchanged.
+    // Do I just check for an \n at the start of an removed then added string, then instead insert an unchanged \n?
+    // I dunno if that's worth fixing - I doubt I could get that edge case totally right
     let points = [{x:13,y:1},{x:31,y:1},{x:34,y:1},{x:5,y:3},{x:6,y:4},{x:19,y:4},{x:8,y:5}];
     let void_points = [{x:0,y:3},{x:3,y:3},{x:4,y:3},{x:5,y:3}];
     let expected_points_by_word = [{x:13,y:1},{x:27,y:1},{x:30,y:1},{x:6,y:4}];
@@ -424,14 +328,14 @@ int main(int argc, char* argv){
     let colors = colorPalette;
 
     new DiffBlock($("body"), textA, textB);
-    new DiffPointsBlock($("body"), textA, textB, points.map((p, index)=>{return new PointColor(p, colors[index]);}));
+    // new DiffPointsBlock($("body"), textA, textB, points.map((p, index)=>{return new PointColor(p, colors[index]);}));
     new DiffPointsBlock($("body"), textA, textB, void_points.map((p, index)=>{return new PointColor(p, colors[index]);}));
 
     return true;
 }
 
 window.onload = function() {
-    test003_by_word();
+    test003();
     // test002_by_word();
     // test001_by_word();
     // test000_by_word();
