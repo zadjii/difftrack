@@ -1,6 +1,21 @@
 function point_equals(a, b) {
     return a.x == b.x && a.y == b.y;
 }
+function merge_newlines(diffs) {
+    let result = [];
+    for (var i = 0; i < diffs.length-1; i++) {
+        let curr_diff = diffs[i];
+        let next_diff = diffs[i+1];
+        if ((curr_diff.removed && next_diff.added) && (curr_diff.value[0] == "\n" && next_diff.value[0] == "\n")) {
+            result.push({value:'\n', added:false, removed:false});
+            result.push({value:curr_diff.value.substring(1), added:curr_diff.added, removed:curr_diff.removed});
+            result.push({value:next_diff.value.substring(1), added:next_diff.added, removed:next_diff.removed});
+            i++;
+        }
+        else result.push(curr_diff);
+    }
+    return result;
+}
 function split_diffs(diffs) {
     let result = [];
     diffs.map(diff=>{
@@ -10,7 +25,7 @@ function split_diffs(diffs) {
             // console.log(elems);
             elems.map((e, index)=>{
                 // if (e != "" || index == 0){
-                    result.push({value: e, added:diff.added, removed:diff.removed});
+                    if (e != 0) result.push({value: e, added:diff.added, removed:diff.removed});
                     if(index != elems.length-1) result.push({value: "\n", added:diff.added, removed:diff.removed});
                 // }
             });
@@ -27,7 +42,11 @@ function split_diffs(diffs) {
 }
 
 function locate_point(initial, diffs) {
-    let real_diffs = split_diffs(diffs);
+    console.log(diffs);
+    let real_diffs = merge_newlines(diffs);
+    console.log(real_diffs);
+    real_diffs = split_diffs(real_diffs);
+    console.log(real_diffs);
 
     var curr = {x:0 , y:0};
     curr.x = 0;
