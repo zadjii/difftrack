@@ -42,11 +42,11 @@ function split_diffs(diffs) {
 }
 
 function locate_point(initial, diffs) {
-    console.log(diffs);
+    // console.log(diffs);
     let real_diffs = merge_newlines(diffs);
-    console.log(real_diffs);
+    // console.log(real_diffs);
     real_diffs = split_diffs(real_diffs);
-    console.log(real_diffs);
+    // console.log(real_diffs);
 
     var curr = {x:0 , y:0};
     curr.x = 0;
@@ -61,7 +61,7 @@ function locate_point(initial, diffs) {
         let unchanged = !(added || removed);
         let content = diff.value;
 
-        console.log({i:i, diff:diff, curr:{x:curr.x,y:curr.y}, target:{x:target.x,y:target.y}});
+        // console.log({i:i, diff:diff, curr:{x:curr.x,y:curr.y}, target:{x:target.x,y:target.y}});
 
         if (content=='\n'){
             // console.log("content is newline");
