@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>trackdiff test 2</title>
+    <style type="text/css">
+        table{
+            width: 100%;
+        }
+        td {
+            padding-right: 2em;
+        }
+        span {
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+<script src="..\dep\diff.js"></script>
+<script src="..\dep\jquery-3.2.1.min.js"></script>
+<script src="..\src\diff-ui.js"></script>
+<script src="..\dep\text-diff.js"></script>
+<script src="..\src\difftrack.js"></script>
+<script defer>
+
+let colorPalette = [
+    "#8888ff",
+    "#f808aa",
+    "#ffff88",
+    "#4af8a8",
+    "#888888",
+    "#ff8888",
+    "#88ff88",
+    "#f8c8a8",
+    "#ff88ff",
+    "#88ffff",
+    "#aa48fa",
+    "#f84f4f",
+];
+
+// "0x240A"
+function test000_by_word() {
+    console.log("starting test000_by_word");
+    $("body").append($("<hr>"));
+    let textA = "qwer\nasdf\nzxcv foo bar\n1234567890";
+    let textB = "qwer\nasdf\nfoo bar baz\n1234567890";
+    let points = [{x:0,y:0},{x:3,y:0},{x:2,y:2},{x:3,y:3},{x:9,y:2},{x:6,y:2}];
+    let colors = colorPalette;
+    new DiffTable($("body"), textA, textB);
+    new DiffPointsBlock($("body"), textA, textB, points.map((p, index)=>{return new PointColor(p, colors[index]);}));
+
+    return true;
+}
+
+
+function test_apple_tos() {
+    console.log("starting test001_by_word");
+    $("body").append($("<hr>"));
+    let textA = `TERMS AND CONDITIONS
+A. TERMS OF SALE
+B. ITUNES STORE TERMS AND CONDITIONS
+C. MAC APP STORE, APP STORE, APP STORE FOR APPLE TV AND IBOOKS STORE TERMS AND CONDITIONS
+D. APPLE MUSIC TERMS AND CONDITIONS
+THE LEGAL AGREEMENTS SET OUT BELOW GOVERN YOUR USE OF THE ITUNES STORE, MAC APP STORE, APP STORE, APP STORE FOR APPLE TV, IBOOKS STORE AND APPLE MUSIC SERVICES ("SERVICES").`;
+    let textB = `TERMS OR CONDITIONS
+A. TERMS OF SALE
+B. ITUNES STORE TERMS AND CONDITIONS
+C. MAC APP STORE, APP STORE, APP STORE FOR APPLE TV TERMS AND CONDITIONS, AND SOMETHING ELSE
+D. APPLE MUSIC TERMS AND CONDITIONS
+THE LEGAL CONTRACTS SET OUT BELOW GOVERN YOUR USE OF THE ITUNES STORE, MAC APP STORE, APP STORE, APP STORE FOR APPLE TV, IBOOKS STORE AND APPLE MUSIC SERVICES ("SERVICES").`;
+    let points = [{x:10,y:5},{x:10,y:0},{x:4,y:4},{x:69,y:3},{x:79,y:3},{x:25,y:5},{x:49,y:3},{x:53,y:3},{x:54,y:3}];
+    let colors = colorPalette;
+
+    new DiffTable($("body"), textA, textB);
+    new DiffPointsBlock($("body"), textA, textB, points.map((p, index)=>{return new PointColor(p, colors[index]);}));
+
+    return true;
+}
+
+function test002_by_word() {
+    console.log("test002_by_word test000_by_word");
+    $("body").append($("<hr>"));
+    let textA = "abcd\nefgh\nijkl\nmnop\nqrst";
+    let textB = "ubcd\nevgh\nijwl\nmnox\nqrst";
+    let points = [{x:0,y:0},{x:3,y:0},{x:2,y:2},{x:3,y:3},{x:9,y:2},{x:6,y:2}];
+    let colors = colorPalette;
+
+    new DiffTable($("body"), textA, textB);
+    new DiffPointsBlock($("body"), textA, textB, points.map((p, index)=>{return new PointColor(p, colors[index]);}));
+
+    return true;
+}
+
+function test003() {
+    console.log("starting test003");
+    $("body").append($("<hr>"));
+    let textA = `
+// This is a very, VERY simple c program
+
+void main(){
+    printf("hello, world");
+    // return 0;
+}
+`;
+    let textB = `
+// This is a pretty simple C program
+#include <stdio.h>
+int main(int argc, char* argv){
+    printf("hello there");
+
+    for (int i = 0; i < argc; i++) {
+        printf("%s\\n", argv[i]);
+    }
+    return 0;
+}`;
+
+    // So in this sample, when we diff by words, we get "-\n\nvoid", +"\nint".
+    // This unfortunately tricks the algorithm here, because one of those \n should just remain unchanged.
+    // Do I just check for an \n at the start of an removed then added string, then instead insert an unchanged \n?
+    // I dunno if that's worth fixing - I doubt I could get that edge case totally right
+    let points = [{x:13,y:1},{x:31,y:1},{x:34,y:1},{x:5,y:3},{x:6,y:4},{x:19,y:4},{x:8,y:5}];
+    let void_points = [{x:0,y:3},{x:3,y:3},{x:4,y:3},{x:5,y:3}];
+    let expected_points_by_word = [{x:13,y:1},{x:27,y:1},{x:30,y:1},{x:6,y:4}];
+    let expected_points_by_char = [{x:13,y:1},{x:27,y:1},{x:30,y:1},{x:6,y:4}];
+    let colors = colorPalette;
+
+    new DiffTable($("body"), textA, textB);
+    // new DiffPointsBlock($("body"), textA, textB, points.map((p, index)=>{return new PointColor(p, colors[index]);}));
+    new DiffPointsBlock($("body"), textA, textB, points.map((p, index)=>{return new PointColor(p, colors[index]);}));
+
+    return true;
+}
+
+
+function test_long_code() {
+    console.log("starting test_long_code");
+    $("body").append($("<hr>"));
+    let textA = `
+// License: WTFPL
+// This is a very, VERY simple c program
+
+void main(){
+    printf("hello, world");
+    // return 0;
+}
+
+int unchanged(){
+    return 1;
+}
+
+int changed(){
+    return 1;
+}
+`;
+    let textB = `
+// License: WTFPL
+// This is a pretty simple C program
+#include <stdio.h>
+int main(int argc, char* argv){
+    printf("hello there");
+
+    for (int i = 0; i < argc; i++) {
+        printf("%s\\n", argv[i]);
+    }
+    return 0;
+}
+
+int unchanged(){
+    return 1;
+}
+
+bool changed(){
+    return false;
+}
+`;
+
+    // So in this sample, when we diff by words, we get "-\n\nvoid", +"\nint".
+    // This unfortunately tricks the algorithm here, because one of those \n should just remain unchanged.
+    // Do I just check for an \n at the start of an removed then added string, then instead insert an unchanged \n?
+    // I dunno if that's worth fixing - I doubt I could get that edge case totally right
+    let points = [{x:13,y:2},{x:31,y:2},{x:34,y:2},{x:5,y:4},{x:6,y:5},{x:19,y:5},{x:8,y:6}];
+    let void_points = [{x:0,y:4},{x:3,y:4},{x:4,y:4},{x:5,y:4}];
+    let expected_points_by_word = [{x:13,y:1},{x:27,y:1},{x:30,y:1},{x:6,y:4}];
+    let expected_points_by_char = [{x:13,y:1},{x:27,y:1},{x:30,y:1},{x:6,y:4}];
+    let colors = colorPalette;
+
+    new DiffTable($("body"), textA, textB);
+    new DiffPointsBlock($("body"), textA, textB, points.map((p, index)=>{return new PointColor(p, colors[index]);}));
+    // new DiffPointsBlock($("body"), textA, textB, void_points.map((p, index)=>{return new PointColor(p, colors[index]);}));
+
+    var dmp = new diff_match_patch();
+    dmp.Diff_EditCost = 5;
+
+    var diffs = dmp.diff_main(textA, textB);
+    dmp.diff_cleanupEfficiency(diffs);
+    let diff_objs = dmp_to_objects(diffs);
+    console.log(diff_objs);
+
+    return true;
+}
+window.onload = function() {
+    test_long_code();
+    // test003();
+    // test002_by_word();
+    test_apple_tos();
+    // test000_by_word();
+};
+</script>
+</body>
+</html>

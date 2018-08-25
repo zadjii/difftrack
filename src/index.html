@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>trackdiff test 0</title>
+</head>
+<body>
+
+<script src="..\dep\diff.js"></script>
+<script src="..\src\trackdiff.js"></script>
+<script defer>
+function test000_by_word() {
+    console.log("starting test000_by_word");
+    let textA = "qwer\nasdf\nzxcv foo bar\n1234567890";
+    let textB = "qwer\nasdf\nfoo bar baz\n1234567890";
+
+    let points      = [{x:0,y:0},{x:3,y:0},{x:2,y:2},{x:3,y:3}];
+    let expected    = [{x:0,y:0},{x:3,y:0},{x:0,y:2},{x:3,y:3}];
+
+    var diff = JsDiff.diffWords(textA, textB);
+    console.log(diff);
+    var s_diffs = split_diffs(diff);
+    console.log(s_diffs);
+
+    let passed = 0;
+    let total = 0;
+    for (var i = 0; i < points.length; i++) {
+        let p = points[i];
+        let e = expected[i];
+        let final = locate_point(p, diff);
+        console.log("Translated " + p.x + ", " + p.y + " to " + final.x + ", " + final.y);
+        if (!point_equals(final, e)){
+            console.error("expected " + p.x + ", " + p.y + " to " + e.x + ", " + e.y);
+        }
+        else{
+            passed++;
+        }
+        total++;
+    };
+    return total == passed;
+}
+
+function test000_by_char() {
+    console.log("starting test000_by_char");
+    let textA = "qwer\nasdf\nzxcv foo bar\n1234567890";
+    let textB = "qwer\nasdf\nfoo bar baz\n1234567890";
+
+    let points      = [{x:0,y:0},{x:3,y:0},{x:2,y:2},{x:3,y:3}];
+    let expected    = [{x:0,y:0},{x:3,y:0},{x:0,y:2},{x:3,y:3}];
+
+    var diff = JsDiff.diffChars(textA, textB);
+    console.log(diff);
+    var s_diffs = split_diffs(diff);
+    console.log(s_diffs);
+
+    let passed = 0;
+    let total = 0;
+    for (var i = 0; i < points.length; i++) {
+        let p = points[i];
+        let e = expected[i];
+        let final = locate_point(p, diff);
+        console.log("Translated " + p.x + ", " + p.y + " to " + final.x + ", " + final.y);
+        if (!point_equals(final, e)){
+            console.error("expected " + p.x + ", " + p.y + " to " + e.x + ", " + e.y);
+        }
+        else{
+            passed++;
+        }
+        total++;
+    };
+    return total == passed;
+}
+
+function test001_by_word() {
+    console.log("starting test000_by_word");
+    let textA = "qwer\nasdf\nzxcv foo bar\n1234567890";
+    let textB = "qwer\nasdf\nfoo bar baz\n1234567890";
+
+    let points      = [{x:0,y:0},{x:3,y:0},{x:2,y:2},{x:3,y:3}];
+    let expected    = [{x:0,y:0},{x:3,y:0},{x:0,y:2},{x:3,y:3}];
+
+    var diff = JsDiff.diffWords(textA, textB);
+    console.log(diff);
+    var s_diffs = split_diffs(diff);
+    console.log(s_diffs);
+
+    let passed = 0;
+    let total = 0;
+    for (var i = 0; i < points.length; i++) {
+        let p = points[i];
+        let e = expected[i];
+        let final = locate_point(p, diff);
+        console.log("Translated " + p.x + ", " + p.y + " to " + final.x + ", " + final.y);
+        if (!point_equals(final, e)){
+            console.error("expected " + p.x + ", " + p.y + " to " + e.x + ", " + e.y);
+        }
+        else{
+            passed++;
+        }
+        total++;
+    };
+    return total == passed;
+}
+
+window.onload = function() {
+    test000_by_word();
+    test000_by_char();
+};
+</script>
+</body>
+</html>
