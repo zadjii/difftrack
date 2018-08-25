@@ -1,7 +1,7 @@
 # difftrack
 Track a point in a block of text across a diff.
 
-![example](https://github.com/zadjii/difftrack/raw/master/docs/example-000.png)
+![example](https://raw.githubusercontent.com/zadjii/difftrack/master/docs/screenshot-000.png)
 
 See how each of the original points is basically in the same place in the final
 text? It's pretty cool like that.
